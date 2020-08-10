@@ -1,7 +1,10 @@
 # FHD_Hardware_Monitor
 
 This Repository contains the Source files for the FHD External Hardware Monitor project And full releases of the current code (for those who can't or don't want to Compile it themselves)
-Be sure to check the 3 sub-folders which respectively contain
+Be sure to check the 3 sub-folders which respectively contain files
+
+Go here for latest release:
+https://github.com/VoswijkC/FHD_Hardware_Monitor/releases/latest
 
 # BOARD
 Contains the Eagle Board files and the Gerber output files
