@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("FHD Hardware Monitor")]
-[assembly: AssemblyCopyright("Copyright © Chiel Voswijk 2020")]
+[assembly: AssemblyCopyright("Copyright © Foxhood Designs 2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
