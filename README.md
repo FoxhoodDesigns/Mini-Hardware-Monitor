@@ -1,7 +1,7 @@
 # !!----OVERHAUL IN PROGRESS----!!
 This project is being overhauled for working with modern systems. Please stand by
 
-# FHD_Hardware_Monitor
+# Mini-Hardware-Monitor
 
 This Repository contains the Source files for the FHD External Hardware Monitor project And full releases of the current code (for those who can't or don't want to Compile it themselves)
 Be sure to check the 3 sub-folders which respectively contain files
