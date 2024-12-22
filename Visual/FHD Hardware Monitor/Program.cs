@@ -7,7 +7,7 @@ using LibreHardwareMonitor.Hardware;
 //using LibreHardwareMonitor.Hardware.Cpu;
 
 /// <summary>
-/// The SHM is a miniature monitoring program that uses the LibreHardwareMonitorLib ( https://github.com/LibreHardwareMonitor/LibreHardwareMonitor )
+/// The EHM is a miniature monitoring program that uses the LibreHardwareMonitorLib ( https://github.com/LibreHardwareMonitor/LibreHardwareMonitor )
 /// to retrieve, parse and prepare a few snippets of data from the windows hardware for sending to an external monitor connect by USB (As Serial COM port)
 /// Program has been measured to use <0.05% of a Ryzen 1600 and ~7MB of (working set) memory 
 /// 
@@ -70,11 +70,10 @@ namespace FHD_Hardware_Monitor
         {
             // Starts the Monitor (Note that the monitor will ONLY gather info from components that are enabled! disabled components will not return sensor values)
             
-            //computer.Open();
             // Construct the SerialPort. Configured according to default Arduino settings at highest speed (115200).
             _serialPort = new SerialPort
             {
-                BaudRate = 1000000,
+                BaudRate = 115200,
                 Parity = Parity.None,
                 DataBits = 8,
                 StopBits = StopBits.One,
@@ -171,7 +170,7 @@ namespace FHD_Hardware_Monitor
             //Disposes of serial Port. Then Closes Computer.
             //Fun-Fact: the close() function really just calls the Dispose() function in turn and thus effectively is equal to Dispose().
             //          The different names being mostly for proper coding ethics as disposal is treated more permanently than closing a port.
-            //          The computer object from the OHM library lacks a Dispose() so only Close() is used.
+            //          The computer object from the LHM library lacks a Dispose() so only Close() is used.
             _serialPort.Dispose();
             computer.Close();
         }
@@ -186,7 +185,6 @@ namespace FHD_Hardware_Monitor
         [STAThread]
         static void Main()
         {
-            Console.WriteLine("TESTING");
             Measuring_class.Start();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
