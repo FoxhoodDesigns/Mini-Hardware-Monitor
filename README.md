@@ -17,10 +17,13 @@ It has a footprint of about 7 megabyte of ram and negligable CPU use.
 The program sends out a packet of 8 bytes ever half a second via serial.
 It uses the standard UART settings as found on an arduino with a Baud rate of 115200.
 
-+Byte 1-2: Static x & x (Pre-amble)
-+Byte 3: CPU use
-+Byte 4: RAM use
-+Byte 5: GPU use
+Byte 1-2: Static x & x (Pre-amble)
+Byte 3: CPU use
+Byte 4: RAM use
+Byte 5: GPU use
+Byte 6: CPU temp
+Byte 7: MB temp
+Byte 8: GPU temp
 Value is stored in halves (0x01 = 0.5). e.g. a byte with as value 150 is either 75% or 75 degrees.
 
 # Configuring for automatic startup
