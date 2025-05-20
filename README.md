@@ -27,6 +27,8 @@ It uses the standard UART settings as found on an arduino with a Baud rate of 11
 
 Value is stored in halves (0x01 = 0.5). e.g. a byte with as value 150 is either 75% or 75 degrees.
 
+!!! Right now only bytes 1-5 are sent !!!
+
 # Configuring for automatic startup
 If your project is nice and and it got its own static com-port. You can configure the monitor program to automatically try to connect to a specific COM port on start.
 To set this up you have to open the .Settings file within the folder with a text editor. There you will find a set of field for automatic connecting.
