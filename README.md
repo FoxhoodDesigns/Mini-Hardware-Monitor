@@ -13,8 +13,8 @@ It has a footprint of about 8 megabyte of ram and negligable CPU use.
 The program sends out a packet of 7 bytes every second via serial.
 It uses the standard UART settings as found on an arduino with a Baud rate of 115200.
 
-* Byte 1-2: Static x & x (Pre-amble)
-* Byte 3: CPU use
+* Byte 1-2: Static 0x03 & 0xF4 (Pre-amble)
+* Byte 3: CPU use 
 * Byte 4: RAM use
 * Byte 5: GPU use
 * Byte 6: CPU temp
