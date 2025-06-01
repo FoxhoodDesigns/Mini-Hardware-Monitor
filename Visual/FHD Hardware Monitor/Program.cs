@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO.Ports;
 using LibreHardwareMonitor.Hardware;
+using LibreHardwareMonitor.Hardware.Cpu;
 //using System.Diagnostics;
 //using LibreHardwareMonitor.Hardware.Cpu;
 
@@ -23,6 +24,9 @@ using LibreHardwareMonitor.Hardware;
 /// 0.4:
 ///     -Migrated from Deprecated OHM DLL to LibreHardwareMonitor with NUGET
 ///     -Implemented ApplicationSettings for enabling auto-attempt via the Config file.
+/// 0.5:
+///     -Increased sensor-count to 5 (CPU Temperature and GPU Temperature)
+///     -Updated LibreHardwareMonitor nUGEST
 /// </summary>
 
 namespace FHD_Hardware_Monitor
@@ -36,6 +40,9 @@ namespace FHD_Hardware_Monitor
         public static byte Sensor_1 = 0xFF;
         public static byte Sensor_2 = 0xFF;
         public static byte Sensor_3 = 0xFF;
+        public static byte Sensor_4 = 0xFF;
+        public static byte Sensor_5 = 0xFF;
+        public static byte Sensor_6 = 0xFF;
         public static int Sensor_3_RAW = 1;
         public static bool Sending = false;                 
         private static SerialPort _serialPort;
@@ -87,17 +94,19 @@ namespace FHD_Hardware_Monitor
         {
             //computer.Accept(new UpdateVisitor());
             computer.Accept(updateVisitor); //Visits and accepts hardware information
-            
+
             /* HARDWARE & SENSOR CHEATSHEET (CPU, NAME, TYPE, Unit)
              * CPU  ,CPU Core #n        ,LOAD   ,percentage //Core specific load
              * CPU  ,CPU Total          ,LOAD   ,percentage //Total CPU load
-             * 
+             * CPU  ,Core (Tctl/Tdie)   ,Temperature, Celsius
              * Memory, Memory Used      ,DATA   ,Gigabytes  //Total Physical Memory in use
              * Memory, Memory Available ,DATA,Gigabytes  //Total Physical Memory available
              * Memory, Memory           ,LOAD   ,Percentage //Total memory in use
-             * GPU  ,GPU Core           ,Temperature, Celsius
-             * GPU  ,GPU Core           ,Clock  ,Mhz
-             * GPU  ,GPU Fan,           ,Control,Percentage
+             * GPU  ,GPU Hot Spot       ,Temperature, Celsius //Temperature of the die
+             * GPU  ,GPU Core           ,Temperature, Celsius //Temperature of the core itself
+             * GPU  ,GPU Core           ,Clock  ,Mhz    //GPU Clock
+             * GPU  ,GPU Fan,           ,Control,Percentage //FAN speed
+             * Ethernnet
              */
             foreach (IHardware hardware in computer.Hardware)
             {
@@ -113,30 +122,38 @@ namespace FHD_Hardware_Monitor
                 {
                     if(hardware.HardwareType == HardwareType.Cpu && sensor.Name == "CPU Total")
                     {
-                        //Console.WriteLine("FOUND THE TOTAL CPU!!: {0}", sensor.Value);
                         double CPU_D = Convert.ToDouble(sensor.Value.ToString());
                         Sensor_1 = (byte)(CPU_D * 2);
                     }
                     if (hardware.HardwareType == HardwareType.Memory && sensor.SensorType == SensorType.Load && sensor.Name == "Memory")
                     {
-                        //Console.WriteLine("FOUND THE TOTAL RAM!!: {0}", sensor.Value);
                         double MEM_D = Convert.ToDouble(sensor.Value.ToString());
                         Sensor_2 = (byte)(MEM_D * 2);
                     }
                     if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
                         if (sensor.Name == "GPU Power")
                         {
-                        //Console.WriteLine("FOUND THE TOTAL GPU!!: {0}", sensor.Value);
                         double GPU_D = Convert.ToDouble(sensor.Value.ToString());
                         Sensor_3 = (byte)(GPU_D * 2);
-                        Sensor_3_RAW = (int)(GPU_D);
                     }
+                    if (hardware.HardwareType == HardwareType.Cpu && sensor.Name == "Core (Tctl/Tdie)")
+                    {
+                        double CPU_T = Convert.ToDouble(sensor.Value.ToString());
+                        Sensor_4 = (byte)(CPU_T * 2);
+                    }
+                    if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
+                        if (sensor.Name == "GPU Core" && sensor.SensorType == SensorType.Temperature)
+                        {
+                            double GPU_T = Convert.ToDouble(sensor.Value.ToString());
+                            Sensor_5 = (byte)(GPU_T * 2);
+                        }
+
                 }
             }
             //Generate Serial Payload with Pre-Amble (Pre-Amble serves to allow the device to recognize as legit traffic, rather than just accept any random garbage)
-            byte[] serial_buffer = new byte[5] { 0x03, 0xF4, Sensor_1, Sensor_2, Sensor_3 };
+            byte[] serial_buffer = new byte[7] { 0x03, 0xF4, Sensor_1, Sensor_2, Sensor_3, Sensor_4, Sensor_5};
             if (_serialPort.IsOpen)
-                _serialPort.Write(serial_buffer, 0, 5);
+                _serialPort.Write(serial_buffer, 0, 7);
         }
         public static bool Set_Port(string COMS)
         {
@@ -202,7 +219,7 @@ namespace FHD_Hardware_Monitor
         private static bool port_open = false;
         private static NotifyIcon trayIcon;
         private static MenuItem COM_Menu;
-        private const byte SensorCount = 3;       //Simplifies adding/removing sensors a bit.
+        private const byte SensorCount = 5;       //Simplifies adding/removing sensors a bit.
         private static string Comport; 
         public FHD_Monitor_Tray()
         {
@@ -221,6 +238,8 @@ namespace FHD_Hardware_Monitor
                     new MenuItem("Sensor1"),
                     new MenuItem("Sensor2"),
                     new MenuItem("Sensor3"),
+                    new MenuItem("Sensor4"),
+                    new MenuItem("Sensor5"),
                     new MenuItem("-"),
                     new MenuItem("SET PORT!", Toggle_Com),
                     COM_Menu,
@@ -240,7 +259,7 @@ namespace FHD_Hardware_Monitor
             }
             //Timer Setup
             myTimer.Tick += new EventHandler(Monitor);
-            myTimer.Interval = 1000;
+            myTimer.Interval = 500;
             myTimer.Start();
         }
 
@@ -289,7 +308,9 @@ namespace FHD_Hardware_Monitor
             Measuring_class.GetSystemInfo();
             trayIcon.ContextMenu.MenuItems[0].Text = "CPU : " + Measuring_class.Sensor_1/2 + "%";
             trayIcon.ContextMenu.MenuItems[1].Text = "MEM : " + Measuring_class.Sensor_2/2 + "%";
-            trayIcon.ContextMenu.MenuItems[2].Text = "GPU : " + Measuring_class.Sensor_3_RAW; //
+            trayIcon.ContextMenu.MenuItems[2].Text = "GPU : " + Measuring_class.Sensor_3/2 + "%";
+            trayIcon.ContextMenu.MenuItems[3].Text = "C_T : " + Measuring_class.Sensor_4 / 2 + "c";
+            trayIcon.ContextMenu.MenuItems[4].Text = "G_T : " + Measuring_class.Sensor_5 / 2 + "c";
             //If set to send, but no port is open. Try opening it.
             if (!Measuring_class.Sending && port_open)
             {
