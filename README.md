@@ -37,4 +37,5 @@ To fix it yourself you can go to the LibrehardwareMonitor github, download the l
 This is often enough for the program to start detecting boards again. May take a few weeks if you got like a cutting edge new board
 
 # License:
-Both this project and the LibreHardwareMonitor project are subject to the Mozilla Public License 2.0
+The LibreHardwareMonitor project is subject to the Mozilla Public License 2.0. Please observe their own github pages for specifics.
+This program is Fully Open Source. Fork, copy, re-use bits however you please. It is nothing special honestly.
